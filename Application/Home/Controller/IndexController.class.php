@@ -363,7 +363,7 @@ class IndexController extends Controller {
         if ($info) {
             $data = 1;
         } else {
-            $data = 0;
+            $data = $info;
         }
         $this->ajaxReturn(array(
             "status" => 200,
