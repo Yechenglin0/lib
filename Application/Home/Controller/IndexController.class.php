@@ -105,11 +105,11 @@ class IndexController extends Controller {
                 'info' => 'Secret is Error'
             ));
         }
-        $info = M('t_ts')->field("tm,ssh,zrz,gcdmc")->where("tm like '%$bookName%' AND ztbs = '41' AND gcdmc != '报损库' AND gcdmc != '丢失' AND gcdmc != '教阅室（教阅库）'")->group('tm,ssh,zrz,gcdmc')->limit($begin,6)->select();
+        $info = M('t_ts')->field("tm,tstm,zrz,gcdmc")->where("tm like '%$bookName%' AND ztbs = '41' AND gcdmc != '报损库' AND gcdmc != '丢失' AND gcdmc != '教阅室（教阅库）'")->group('tm,tstm,zrz,gcdmc')->limit($begin,6)->select();
         $i = 0;
         foreach ($info as $var) {
             $data[$i]['bookName'] = $var['TM'];
-            $data[$i]['code'] = $var['SSH'];
+            $data[$i]['code'] = $var['TSTM'];
             $data[$i]['writer'] = $var['ZRZ'];
             $data[$i]['place'] = $var['GCDMC'];
             $i++;
@@ -137,11 +137,11 @@ class IndexController extends Controller {
                 'info' => 'Secret is Error'
             ));
         }
-        $info = M('t_ts')->field("tm,ssh,zrz,gcdmc")->where("zrz like '%$bookWriter%' AND ztbs = '41' AND gcdmc != '报损库' AND gcdmc != '丢失' AND gcdmc != '教阅室（教阅库）'")->group('tm,ssh,zrz,gcdmc')->limit($begin,6)->select();
+        $info = M('t_ts')->field("tm,tstm,zrz,gcdmc")->where("zrz like '%$bookWriter%' AND ztbs = '41' AND gcdmc != '报损库' AND gcdmc != '丢失' AND gcdmc != '教阅室（教阅库）'")->group('tm,tstm,zrz,gcdmc')->limit($begin,6)->select();
         $i = 0;
         foreach ($info as $var) {
             $data[$i]['bookName'] = $var['TM'];
-            $data[$i]['code'] = $var['SSH'];
+            $data[$i]['code'] = $var['TSTM'];
             $data[$i]['writer'] = $var['ZRZ'];
             $data[$i]['place'] = $var['GCDMC'];
             $i++;
@@ -199,17 +199,17 @@ class IndexController extends Controller {
                 'info' => 'Secret is Error'
             ));
         }
-        $info = M('t_ts')->field("tm,ssh,zrz,gcdmc")->where("(zrz like '%$content%' OR tm like '%$content%') AND ztbs = '41' AND gcdmc != '报损库' AND gcdmc != '丢失' AND gcdmc != '教阅室（教阅库）'")->group('tm,ssh,zrz,gcdmc')->limit($begin,12)->select();
+        $info = M('t_ts')->field("tm,tstm,zrz,gcdmc")->where("(zrz like '%$content%' OR tm like '%$content%') AND ztbs = '41' AND gcdmc != '报损库' AND gcdmc != '丢失' AND gcdmc != '教阅室（教阅库）'")->group('tm,tstm,zrz,gcdmc')->limit($begin,12)->select();
         $char = array('[ABCDEGHJK]' => '社科借阅室', 'F' => '经济借阅室', '[NOPQRSTUVWXYZ]' => '科技借阅室', 'T[A-Z]{1}' => '借阅室', 'I' => '文学借阅室' );
         $i = 0;
         foreach ($info as $var) {
             $data[$i]['bookName'] = $var['TM'];
-            $data[$i]['code'] = $var['SSH'];
+            $data[$i]['code'] = $var['TSTM'];
             $data[$i]['writer'] = $var['ZRZ'];
             $data[$i]['place'] = $var['GCDMC'];
             foreach ($char as $key => $value) {
                 $reg = "/^".$key."/";
-                if(preg_match($reg, $var['SSH']))
+                if(preg_match($reg, $var['tstm']))
                     $data[$i]['borrowroom'] = $value;
             }
             if(!isset($data[$i]['borrowroom']))    $data[$i]['borrowroom'] = "阅览室(不外借)";
@@ -231,17 +231,11 @@ class IndexController extends Controller {
 
 
 
-    /**
-     *  @param start 起始时间
-     *
-     *  @param end 结束时间
-     *   
+    /** 
      *  按照时间查图书
      */
     public function libRecentBook()
     {
-        $readerId = I('post.start');    //开始日期
-        $readerId = I('post.end');      //结束日期
 
         $time = I('post.timestamp');
         $string = I('post.string');
@@ -256,7 +250,7 @@ class IndexController extends Controller {
             ));
         }
 
-        $info = M('t_ts')->field("tm,tstm,zrz,gcdmc")->where("rdrq between '$start' and '$end'")->select();
+        $info = M('t_ts')->field("tm,tstm,zrz,gcdmc")->order("rdrq desc")->limit(20)->select();
         $i = 0;
         foreach ($info as $var) {
             $data[$i]['bookName'] = $var['TM'];                   //图书名称
@@ -339,44 +333,13 @@ class IndexController extends Controller {
             "data" => $data
         ));
     }
-    /**
-     *  根据图书编号查询 判断书籍是否可借 可借返回1 不可解返回0
-     */
-    public function libIsAvailable() {
-
-        $readerId = I('post.booktm');   //图书的编号
-        $time = I('post.timestamp');
-        $string = I('post.string');
-        $secret = I('post.secret');
-
-        $nowDate = date('Y-m-d');
-        $verify = sha1(sha1($time).md5($string)."redrock");
-
-        if ($verify != $secret) {
-            $this->ajaxReturn(array(
-                'status' => '-400',
-                'info' => 'Secret is Error'
-            ));
-        }
-        $info = M('t_ts_jy')->where("tstm = '$booktm' and yhrq < '$nowDate'")->find();
-        
-        if ($info) {
-            $data = 1;
-        } else {
-            $data = $info;
-        }
-        $this->ajaxReturn(array(
-            "status" => 200,
-            "info" => "success",
-            "data" => $data
-        ));
-    }
+    
     /**
      *  根据图书登记号查询 
      */
     public function libFindBookByDJH()
     {
-        $readerId = I('post.djh');
+        $djh = I('post.djh');
         $time = I('post.timestamp');
         $string = I('post.string');
         $secret = I('post.secret');
@@ -410,7 +373,7 @@ class IndexController extends Controller {
      */
     public function libFindBookBytstm()
     {
-        $readerId = I('post.tstm');
+        $tstm = I('post.tstm');
         $time = I('post.timestamp');
         $string = I('post.string');
         $secret = I('post.secret');
