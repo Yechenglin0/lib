@@ -53,6 +53,8 @@ class IndexController extends Controller {
             $data[$i]['bookName'] = $var['TSMC'];
             $data[$i]['start'] = substr($var['JSRQ'],0,10);
             $data[$i]['finish'] = $var['YHRQ'];
+            $data[$i]['tstm'] = var['TSTM'];
+            
             $i++;
         }
         $this->ajaxReturn(array(
@@ -188,6 +190,7 @@ class IndexController extends Controller {
 
     public function bookSearch(){
         $begin = I('post.begin');
+        $end = I('post.end');
         $time = I('post.timestamp');
         $string = I('post.string');
         $secret = I('post.secret');
@@ -199,7 +202,7 @@ class IndexController extends Controller {
                 'info' => 'Secret is Error'
             ));
         }
-        $info = M('t_ts')->field("tm,tstm,zrz,gcdmc")->where("(zrz like '%$content%' OR tm like '%$content%') AND ztbs = '41' AND gcdmc != '报损库' AND gcdmc != '丢失' AND gcdmc != '教阅室（教阅库）'")->group('tm,tstm,zrz,gcdmc')->limit($begin,12)->select();
+        $info = M('t_ts')->field("tm,tstm,zrz,gcdmc")->where("(zrz like '%$content%' OR tm like '%$content%') AND ztbs = '41' AND gcdmc != '报损库' AND gcdmc != '丢失' AND gcdmc != '教阅室（教阅库）'")->group('tm,tstm,zrz,gcdmc')->limit($begin,$end)->select();
         $char = array('[ABCDEGHJK]' => '社科借阅室', 'F' => '经济借阅室', '[NOPQRSTUVWXYZ]' => '科技借阅室', 'T[A-Z]{1}' => '借阅室', 'I' => '文学借阅室' );
         $i = 0;
         foreach ($info as $var) {
@@ -236,7 +239,7 @@ class IndexController extends Controller {
      */
     public function libRecentBook()
     {
-
+        $num = I('post.num');
         $time = I('post.timestamp');
         $string = I('post.string');
         $secret = I('post.secret');
@@ -250,7 +253,7 @@ class IndexController extends Controller {
             ));
         }
 
-        $info = M('t_ts')->field("tm,tstm,zrz,gcdmc")->order("rdrq desc")->limit(20)->select();
+        $info = M('t_ts')->field("tm,tstm,zrz,gcdmc")->order("rdrq desc")->group('tm,tstm,zrz,gcdmc')->limit($num)->select();
         $i = 0;
         foreach ($info as $var) {
             $data[$i]['bookName'] = $var['TM'];                   //图书名称
@@ -352,7 +355,7 @@ class IndexController extends Controller {
                 'info' => 'Secret is Error'
             ));
         }
-        $info = M('t_ts')->field("tm,tstm,zrz,gcdmc")->where("djh = '$djh'")->select();
+        $info = M('t_ts')->field("tm,tstm,zrz,gcdmc")->where("djh = '$djh'")->find();
         $i = 0;
         foreach ($info as $var) {
             $data[$i]['bookName'] = $var['TM'];     //书名
@@ -386,7 +389,7 @@ class IndexController extends Controller {
                 'info' => 'Secret is Error'
             ));
         }
-        $info = M('t_ts')->field("tm,tstm,zrz,gcdmc")->where("tstm = '$tstm'")->select();
+        $info = M('t_ts')->field("tm,tstm,zrz,gcdmc")->where("tstm = '$tstm'")->find();
         $i = 0;
         foreach ($info as $var) {
             $data[$i]['bookName'] = $var['TM'];     //书名
