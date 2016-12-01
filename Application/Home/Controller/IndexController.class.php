@@ -253,7 +253,7 @@ class IndexController extends Controller {
             ));
         }
 
-        $info = M('t_ts')->field("tm,tstm,zrz,gcdmc")->order("rdrq desc")->group('tm')->limit(0,$num)->select();
+        $info = M('t_ts')->field("tm,tstm,zrz,gcdmc")->order("rdrq desc")->limit($num)->select();
         $i = 0;
         foreach ($info as $var) {
             $data[$i]['bookName'] = $var['TM'];                   //图书名称
