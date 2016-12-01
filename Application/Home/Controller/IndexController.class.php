@@ -53,7 +53,7 @@ class IndexController extends Controller {
             $data[$i]['bookName'] = $var['TSMC'];
             $data[$i]['start'] = substr($var['JSRQ'],0,10);
             $data[$i]['finish'] = $var['YHRQ'];
-            $data[$i]['tstm'] = var['TSTM'];
+            $data[$i]['tstm'] = $var['TSTM'];
             
             $i++;
         }
