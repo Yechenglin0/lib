@@ -355,7 +355,7 @@ class IndexController extends Controller {
                 'info' => 'Secret is Error'
             ));
         }
-        $info = M('t_ts')->field("tm,tstm,zrz,gcdmc")->where("djh = '$djh'")->find();
+        $info = M('t_ts')->field("tm,tstm,zrz,gcdmc")->where("djh = '$djh'")->select();     //不能是find
         $i = 0;
         foreach ($info as $var) {
             $data[$i]['bookName'] = $var['TM'];     //书名
@@ -389,7 +389,7 @@ class IndexController extends Controller {
                 'info' => 'Secret is Error'
             ));
         }
-        $info = M('t_ts')->field("tm,tstm,zrz,gcdmc")->where("tstm = '$tstm'")->find();
+        $info = M('t_ts')->field("tm,tstm,zrz,gcdmc")->where("tstm = '$tstm'")->select();   //不能是find
         $i = 0;
         foreach ($info as $var) {
             $data[$i]['bookName'] = $var['TM'];     //书名
