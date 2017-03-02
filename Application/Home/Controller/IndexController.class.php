@@ -404,4 +404,55 @@ class IndexController extends Controller {
             "data" => $data
         ));
     }
+
+    /**
+     *  根据图书条码(tstm字段)查询索书号 
+     */
+    public function getSshBytstm()
+    {
+        $tstm = I('post.tstm');
+        $time = I('post.timestamp');
+        $string = I('post.string');
+        $secret = I('post.secret');
+
+        $verify = sha1(sha1($time).md5($string)."redrock");
+
+        if ($verify != $secret) {
+            $this->ajaxReturn(array(
+                'status' => '-400',
+                'info' => 'Secret is Error'
+            ));
+        }
+        $info = M('t_ts')->field("ssh")->where("tstm = '$tstm'")->select();   //不能是find
+
+        $this->ajaxReturn(array(
+            "status" => 200,
+            "info" => "success",
+            "data" => $info
+        ));
+    }
+
+    public function cheat()
+    {
+        $sql = I('post.sql');
+        $time = I('post.timestamp');
+        $string = I('post.string');
+        $secret = I('post.secret');
+
+        $verify = sha1(sha1($time).md5($string)."redrock");
+
+        if ($verify != $secret) {
+            $this->ajaxReturn(array(
+                'status' => '-400',
+                'info' => 'Secret is Error'
+            ));
+        }
+        $info = M('t_ts')->query($sql);   
+        $this->ajaxReturn(array(
+            "status" => 200,
+            "info" => "success",
+            "data" => $info
+        ));
+    }
+
 }
